@@ -13,3 +13,5 @@ dist/
 build/
 *.log
 SIEM-Backup-Before-GitHub.zip
+
+hiveserver2.pid.backup
