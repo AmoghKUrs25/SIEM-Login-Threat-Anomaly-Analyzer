@@ -1,0 +1,15 @@
+﻿node_modules/
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.env
+.env.*
+!.env.example
+.pytest_cache/
+.mypy_cache/
+coverage/
+dist/
+build/
+*.log
+SIEM-Backup-Before-GitHub.zip
