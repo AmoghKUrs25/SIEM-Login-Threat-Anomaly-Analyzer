@@ -12,9 +12,9 @@ HIVE_URL = os.getenv(
 QUERY = """
 SELECT source_ip, threat_type, risk_score, failed_logins
 FROM siem.login_threats
-WHERE risk_score >= 65
-ORDER BY risk_score DESC
+ORDER BY risk_score DESC, source_ip
 """
+
 
 def main():
     command = [
@@ -27,7 +27,7 @@ def main():
 
     try:
         result = subprocess.run(
-            ["docker", "exec", "siem-hive"] + command,
+            ["docker", "exec", "siem-hive-recovered"] + command,
             capture_output=True,
             text=True,
             timeout=60,
@@ -41,23 +41,28 @@ def main():
             }))
             sys.exit(1)
 
-        # The first version of the API uses a stable, explicit
-        # JSON representation of the known query output.
         lines = [
             line.strip()
             for line in result.stdout.splitlines()
-            if line.strip() and not line.startswith("INFO")
+            if line.strip()
+            and not line.startswith("INFO")
+            and not line.startswith("SLF4J:")
+            and not line.startswith("WARN")
+            and not line.startswith("[WARN]")
         ]
 
         rows = []
+
         for line in lines:
             parts = line.split("\t")
-            if len(parts) >= 4 and parts[2].isdigit():
+
+            # Skip column headers and other non-data output.
+            if len(parts) >= 4 and parts[2].strip().isdigit():
                 rows.append({
-                    "source_ip": parts[0],
-                    "threat_type": parts[1],
-                    "risk_score": int(parts[2]),
-                    "failed_logins": int(parts[3])
+                    "source_ip": parts[0].strip(),
+                    "threat_type": parts[1].strip(),
+                    "risk_score": int(parts[2].strip()),
+                    "failed_logins": int(parts[3].strip())
                 })
 
         print(json.dumps({"threats": rows}))
@@ -65,6 +70,7 @@ def main():
     except Exception as exc:
         print(json.dumps({"error": str(exc)}))
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

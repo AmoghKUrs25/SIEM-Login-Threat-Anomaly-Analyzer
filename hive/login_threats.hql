@@ -18,5 +18,4 @@ LOCATION 'hdfs://namenode:9000/siem/processed/login_analysis';
 
 SELECT source_ip, threat_type, risk_score, failed_logins
 FROM siem.login_threats
-WHERE risk_score >= 65
-ORDER BY risk_score DESC;
+ORDER BY risk_score DESC source_ip
