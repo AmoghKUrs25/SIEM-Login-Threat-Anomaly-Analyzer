@@ -15,3 +15,5 @@ build/
 SIEM-Backup-Before-GitHub.zip
 
 hiveserver2.pid.backup
+
+hiveserver2.pid
